@@ -1,19 +1,42 @@
+using Application.Services;
+using Domain.Interfaces;
+using Infraestructure.IOC;
+using TallerMecanicoAPI.Utilitario;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var cadenaConexion = builder.Configuration.GetConnectionString("TallerDb")
+    ?? throw new InvalidOperationException("Falta la cadena de conexión 'TallerDb'.");
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddHttpContextAccessor();
+
+// Capas
+builder.Services.AddApplication();
+builder.Services.AddInfraestructure(cadenaConexion);
+
+// Servicios propios de la API (implementan interfaces de Domain/Application)
+builder.Services.AddScoped<IUsuarioActual, UsuarioActual>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasherService>();
+builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+
+builder.Services.AddJwt(builder.Configuration);
+builder.Services.AddExceptionHandler<ManejadorExcepciones>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+await DbInicializador.CrearAdministradorAsync(app.Services, app.Configuration);
+
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

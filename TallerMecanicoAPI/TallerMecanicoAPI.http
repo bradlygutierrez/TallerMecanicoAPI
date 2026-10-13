@@ -1,6 +1,64 @@
-@TallerMecanicoAPI_HostAddress = http://localhost:5145
+@host = http://localhost:5145
+@token = PEGAR_AQUI_EL_TOKEN_DEL_LOGIN
 
-GET {{TallerMecanicoAPI_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Login (usa el admin de appsettings.Development.json)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{ "nombreUsuario": "admin", "password": "Admin12345!" }
+
+### 2. Crear marca
+POST {{host}}/api/marcas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Toyota", "paisOrigen": "Japón" }
+
+### 3. Crear modelo
+POST {{host}}/api/modelos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "marcaId": 1, "nombre": "Corolla", "descripcion": "Sedán" }
+
+### 4. Crear cliente
+POST {{host}}/api/clientes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombreCompleto": "Juan Pérez", "telefono": "88887777", "correoElectronico": "juan@correo.com" }
+
+### 5. Crear vehículo
+POST {{host}}/api/vehiculos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "placa": "M123456", "marcaId": 1, "modeloId": 1, "anioFabricacion": 2018, "clienteId": 1 }
+
+### 6. Crear servicio y problema reportado
+POST {{host}}/api/servicios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Cambio de aceite", "descripcion": "Aceite y filtro", "precioBase": 450 }
 
 ###
+POST {{host}}/api/problemas-reportados
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nombre": "Ruido en el motor", "descripcion": null }
+
+### 7. Crear orden de trabajo (el total sale de la vista SQL)
+POST {{host}}/api/ordenes-trabajo
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "vehiculoId": 1, "problemaReportadoId": 1, "detalles": [ { "servicioId": 1, "cantidad": 1 } ] }
+
+### 8. Cambiar estado (2 = EnProceso, 3 = Completada, 4 = Cancelada)
+PUT {{host}}/api/ordenes-trabajo/1/estado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "estadoOrdenId": 2 }
