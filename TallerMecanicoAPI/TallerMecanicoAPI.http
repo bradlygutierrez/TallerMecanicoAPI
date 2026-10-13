@@ -1,0 +1,6 @@
+@TallerMecanicoAPI_HostAddress = http://localhost:5145
+
+GET {{TallerMecanicoAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
